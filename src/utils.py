@@ -1,12 +1,16 @@
+# src/utils.py
 import json
-import os
-from datetime import datetime
-from src.config import OUTPUT_DIR
+from pathlib import Path
+from datetime import date, datetime
 
-def save_json(data):
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
-    filename = f"{OUTPUT_DIR}/adif_{datetime.now().strftime('%Y-%m-%d')}.json"
+DATA_DIR = Path("data")
+DATA_DIR.mkdir(exist_ok=True)
+
+def save_json(obj: dict):
+    today = date.today().isoformat()  # YYYY-MM-DD
+    timestamp = datetime.utcnow().strftime("%H%M%S")
+    filename = DATA_DIR / f"{today}_{timestamp}.json"
     with open(filename, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(obj, f, ensure_ascii=False, indent=2)
     return filename
+
