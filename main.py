@@ -22,22 +22,32 @@ if __name__ == "__main__":
     logger = get_logger()
     logger.info("Iniciando scraper de ADIF...")
     try:
-        headers = {
-            "User-Agent": random.choice(user_agents),
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Connection": "keep-alive",
-            "Upgrade-Insecure-Requests": "1",
-            "Cache-Control": "max-age=0",
-            "Sec-Fetch-Dest": "document",
-            "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Site": "none",
-            "Sec-Fetch-User": "?1",
-            "Referer": "https://www.google.com/",
-            "Pragma": "no-cache"
-        }
-        response = requests.get(URL, headers=headers)
+        response = None
+        for ua in random.sample(user_agents, len(user_agents)):
+            headers = {
+                "User-Agent": ua,
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1",
+                "Cache-Control": "max-age=0",
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "none",
+                "Sec-Fetch-User": "?1",
+                "Referer": "https://www.google.com/",
+                "Pragma": "no-cache"
+            }
+            try:
+                logger.info(f"Probando User-Agent: {ua}")
+                response = requests.get(URL, headers=headers)
+                response.raise_for_status()
+                break
+            except Exception as e:
+                logger.warning(f"User-Agent fallido: {ua} - {e}")
+        if response is None or response.status_code != 200:
+            raise Exception("No se pudo acceder a la web con ningún User-Agent")
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
         # Extraer fecha y hora
